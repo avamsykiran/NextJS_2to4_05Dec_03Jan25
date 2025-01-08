@@ -1,8 +1,10 @@
 "use client"
 
-import { getAllDepts } from "@/lib/DeptApiCalls";
+import { addDept, deleteDeptById, getAllDepts, updateDept } from "@/lib/DeptApiCalls";
 import Dept from "@/models/Dept";
 import { Fragment, useEffect, useState } from "react";
+import DeptForm from "./DeptForm";
+import DeptRow from "./DeptRow";
 
 const DeptsList = () => {
 
@@ -10,15 +12,57 @@ const DeptsList = () => {
     let [isLoading, setLoading] = useState<boolean>(true);
     let [errMsg, setErrMsg] = useState<string | null>(null);
 
-    const loadData = ():void => {
+    const loadData = (): void => {
         getAllDepts()
             .then(resp => {
                 setDepts(resp.data);
                 setLoading(false);
                 setErrMsg(null);
-            }).catch(() => {
+            }).catch(err => {
+                console.log(err);
                 setLoading(false);
                 setErrMsg("Unable to refresh data! Please retry later!");
+            })
+    }
+
+    const del = (id: number): void => {
+        deleteDeptById(id)
+            .then(resp => {
+                setDepts(depts?.filter(d => d.deptId!== id) ?? []);
+            }).catch(err => {
+                console.log(err);
+                setLoading(false);
+                setErrMsg("Unable to delete data! Please retry later!");
+            })
+    }
+
+    const edit = (id: number): void => {
+        setDepts(depts?.map( d => d.deptId===id?{...d,editable:true}:d) ?? []);
+    }
+
+    const cancelEdit = (id: number): void => {
+        setDepts(depts?.map( d => d.deptId===id?{...d,editable:undefined}:d) ?? []);
+    }
+    
+    const add = (dept:Dept): void => {
+        addDept(dept)
+            .then(resp => {
+               setDepts([...(depts??[]),{...resp.data}]);
+            }).catch(err => {
+                console.log(err);
+                setLoading(false);
+                setErrMsg("Unable to save data! Please retry later!");
+            })
+    }
+
+    const update = (dept:Dept): void => {
+        updateDept(dept)
+            .then(resp => {
+                setDepts(depts?.map( d => d.deptId===dept.deptId?dept:d) ?? []);
+            }).catch(err => {
+                console.log(err);
+                setLoading(false);
+                setErrMsg("Unable to save data! Please retry later!");
             })
     }
 
@@ -54,17 +98,17 @@ const DeptsList = () => {
                         <div className="col">
                             Title
                         </div>
+                        <div className="col-2">
+
+                        </div>
                     </div>
 
+                    <DeptForm save={add} />
+
                     {depts?.map(dept => (
-                        <div className="row border-bottom border-primary p-2">
-                            <div className="col-2">
-                                {dept.deptId}
-                            </div>
-                            <div className="col">
-                                {dept.name}
-                            </div>
-                        </div>
+                        dept.editable?
+                        <DeptForm key={dept.deptId} save={update} dept={dept} cancelEdit={cancelEdit} /> :
+                        <DeptRow key={dept.deptId} dept={dept} edit={edit} del={del} />
                     ))}
                 </Fragment>
             )}

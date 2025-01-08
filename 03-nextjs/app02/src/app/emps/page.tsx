@@ -1,8 +1,11 @@
+import EmpsList from "@/ui/EmpsList";
 
 export default function Emps() {
   return (
-    <section>
-      <h5>List</h5>      
+    <section>      
+      <section className="p-4">
+        <EmpsList />
+      </section>   
     </section>
   );
 }
