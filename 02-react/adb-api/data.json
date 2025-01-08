@@ -1,0 +1,28 @@
+{
+  "contacts": [
+    {
+      "id": 1,
+      "name": "Vamsy",
+      "mobile": "9052224755",
+      "mailId": "vamsy@gmail.com"
+    },
+    {
+      "id": 2,
+      "name": "Murthy",
+      "mobile": "9052224744",
+      "mailId": "murthy@gmail.com"
+    },
+    {
+      "id": 3,
+      "name": "Suresh",
+      "mobile": "9052224711",
+      "mailId": "suresh@gmail.com"
+    },
+    {
+      "id": 4,
+      "name": "Rajesh Suri",
+      "mobile": "1231231231",
+      "mailId": "suri@gmail.com"
+    }
+  ]
+}

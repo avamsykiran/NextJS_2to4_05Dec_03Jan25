@@ -1,0 +1,38 @@
+[
+    {
+        "empId": 1,
+        "fullName": "Vamsy Kiran",
+        "dateOfJoining": "2024-01-01",
+        "salary": 50000,
+        "mobile": "9052224753",
+        "mailId": "vamsy@gmail.com",
+        "deptId": 4
+    },
+    {
+        "empId": 2,
+        "fullName": "KGN Murthy",
+        "dateOfJoining": "2024-02-01",
+        "salary": 55000,
+        "mobile": "9052224751",
+        "mailId": "murthy@gmail.com",
+        "deptId": 3
+    },
+    {
+        "empId": 3,
+        "fullName": "Suresh P",
+        "dateOfJoining": "2024-02-01",
+        "salary": 55000,
+        "mobile": "9052224752",
+        "mailId": "suresh@gmail.com",
+        "deptId": 2
+    },
+    {
+        "empId": 4,
+        "fullName": "Ramesh P",
+        "dateOfJoining": "2024-01-10",
+        "salary": 55000,
+        "mobile": "9052224754",
+        "mailId": "ramesh@gmail.com",
+        "deptId": 1
+    }
+]

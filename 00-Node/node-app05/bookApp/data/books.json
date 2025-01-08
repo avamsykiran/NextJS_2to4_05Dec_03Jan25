@@ -1,0 +1,17 @@
+[
+    {
+        "bookId": 101,
+        "title": "The Hounds Of Baskervelli",
+        "price": 256
+    },
+    {
+        "bookId": 102,
+        "title": "The Mahabaharat",
+        "price": 12256
+    },
+    {
+        "bookId": 103,
+        "title": "Nodjs Tutorial",
+        "price": 10256
+    }
+]

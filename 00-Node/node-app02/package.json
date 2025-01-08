@@ -1,0 +1,12 @@
+{
+  "name": "app02",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

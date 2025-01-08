@@ -1,0 +1,14 @@
+{
+  "name": "app01",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "jquery": "^3.7.1"
+  }
+}
