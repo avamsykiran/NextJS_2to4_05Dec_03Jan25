@@ -2,10 +2,11 @@
 
 import { getAllEmps } from "@/lib/EmpApiCalls";
 import Emp from "@/models/Emp";
+import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 
 const EmpsList = () => {
-        
+
     let [emps, setEmps] = useState<Emp[] | null>(null);
     let [isLoading, setLoading] = useState<boolean>(true);
     let [errMsg, setErrMsg] = useState<string | null>(null);
@@ -57,10 +58,11 @@ const EmpsList = () => {
                             <th>Mobile</th>
                             <th>Mail Id</th>
                             <th>DeptId</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        { emps.map( emp => (
+                        {emps.map(emp => (
                             <tr key={emp.empId}>
                                 <td>{emp.empId}</td>
                                 <td>{emp.fullName}</td>
@@ -69,6 +71,14 @@ const EmpsList = () => {
                                 <td>{emp.mobile}</td>
                                 <td>{emp.mailId}</td>
                                 <td>{emp.deptId}</td>
+                                <td>
+                                    <Link className="btn btn-sm me-1" href={{ pathname: "/emps/edit", query: { empId: emp.empId } }}>
+                                        <i className="bi bi-pen" />
+                                    </Link>
+                                    <button type="button" className="btn btn-sm">
+                                        <i className="bi bi-trash" />
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>

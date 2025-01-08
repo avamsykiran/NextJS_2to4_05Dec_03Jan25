@@ -23,7 +23,6 @@ const DeptForm = ({ dept, save,cancelEdit }: { dept?: Dept, save: (dept: Dept) =
         }else{
             cancelEdit(dept.deptId);
         }
-        event.preventDefault();
     }
 
     return (
