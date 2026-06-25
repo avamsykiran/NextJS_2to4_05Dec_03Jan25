@@ -244,7 +244,7 @@ ReactJS Hooks
 
 NextJS
 
-    is a UI framework based on ReactJs.
+    is a UI-SPA framework based on React Router 7.
 
     Features
         Routing     is used for navigating from one component to another.
@@ -290,19 +290,22 @@ NextJS
 
     Createing a NextJS application
 
-        npx create-next-app app-name
+        npm create vite
+
+            and choose NextJS for framework,
+            and Typescipt for Variant,
+            and None/Bootstrap/TailWind for CSS.
 
     NextJS Routing
 
         We have two routers to handle routing in nextJS
 
-        Both routers depend on file system based routing that means based on the physical path of the component, the routing
-        path is assumed.
+        Both routers depend on file system based routing that means 
+                    based on the physical path of the component, the routing path is assumed.
 
-        AppRouting      engages for client side routing
+        AppRouter       engages for server side (by default)
                         
-                        the 'app' folder is the root folder that is expected to contain folders and components, and each
-                        folder inside the 'app' maps to one path same as the folder name
+                        the 'app' folder is the root folder that is expected to contain folders and components, and each folder inside the 'app' maps to one path same as the folder name
                         
                         Assuming the server is running on localhost:8888
 
@@ -316,56 +319,35 @@ NextJS
                             error.tsx       to serve as the error content of the component
                             page.tsx        to serve the content of the component
 
+                        All these components are consedered as server-side components by default.
 
-        PagesRouting    engages for server side routing
+        PageRouter      engages for client side (by default)
 
-                        the 'pages' folder is the root folder for server side routing.
+                        the 'pages' folder is the root folder for PageRouter
                         each file of the pages folder is mapped to a url
 
-                        pages/emps.tsx      http://localhost:8888/emps
-                        
+                        pages/emps.tsx          http://localhost:8888/emps
+                        pages/depts.tsx         http://localhost:8888/depts
+                        pages/projects.tsx      http://localhost:8888/projects
 
-        Api Routing     pages/api                  is mapped to http://localhost:8888/api/* 
-                        pages/api/emps.ts          is mapped to http://localhost:8888/api/emps          GET/PUT/POST/DELETE
-                        pages/api/emps/create.ts   is mapped to http://localhost:8888/api/emps/create   GET/PUT/POST/DELETE 
-                        pages/api/emps/[empId].ts  is mapped to http://localhost:8888/api/emps/101      GET/PUT/POST/DELETE 
-                        pages/api/emps/[...prm].ts is mapped to http://localhost:8888/api/emps/101      GET/PUT/POST/DELETE 
-                                                   is mapped to http://localhost:8888/api/emps/a/b/c    GET/PUT/POST/DELETE 
-                        
-                        pages/api/emps/[[...prm]].ts 
-                                                   is mapped to http://localhost:8888/api/emps          GET/PUT/POST/DELETE 
-                                                   is mapped to http://localhost:8888/api/emps/a        GET/PUT/POST/DELETE 
-                                                   is mapped to http://localhost:8888/api/emps/a/b      GET/PUT/POST/DELETE 
-                                                   is mapped to http://localhost:8888/api/emps/a/b/c    GET/PUT/POST/DELETE 
-                                                   
-        The request handler method
+                        All these components are consedered as client-side components by default.
 
-                        is used to handle an incoming requet and issue a response.
+        Conflict Resolution
 
-                        const handler = async (req:NextApiRequest,res:NextApiResponse) => {
+                        1. In real-time, we will not engage both router in the same application.
+                            So, no question of conflict.
 
-                            /*
-                                req.method  ----> GET/PUT/POST/DELETE 
-                                req.body    ----> a request body in json form
-                                req.cookies ----> gives access to cookies of the app
-                                req.query   ----> gives access to both path params and query string params
-                            */
-
-                            /*
-                                res.status(statusCode)
-                                res.json(jsonResponseBody)
-                                res.send(statusCode,jsonResponseBody)
-                                res.send()
-                            */
-
-                        }
-
+                        2. But if done (If both AppRouter and PageRouter are both engaged in the same app)
+                            AppRouter has priority over PageRouter.
+                            Only when a resource is not foudn on AppRpouter, PageRouter is asked for the resource.
+     
     hr-app
         |- public       is used to hold all static files like images, videos ..etc.,
         |- src
             |-app                   is refered to the context-root ("/")
                 |-global.css        is the global style sheet (equivalent to 'index.css' in reactjs)
                 |-layout.tsx        root-layout. And layout controls the structure of the page
+                |-error.tsx         provides the error-content of the page.
                 |-page.tsx          provides the content of the page.
                 |
                 |-departments       is accessable as /departments
@@ -383,10 +365,10 @@ NextJS
                 |   |-page.tsx    
                 |
             |- lib                  put all .ts files holding bussiness logic
-            |- ui                   put all .tsx files for components.
+            |- ui                   put all .tsx files for reusable components. 
+            |                       (not directly acceswsable from the router)
             |-pages
-                |-api               represents rest-api
-                    |-emps.js       http://localhost:3000/api/emps
-                    |-depts.js      http://localhost:3000/api/depts
-                    |-projs.js      http://localhost:3000/api/projs
+                |-about.tsx         http://localhost:3000/about
+                |-home.tsx          http://localhost:3000/home
+                |-contactUs.tsx     http://localhost:3000/contactUs
     
