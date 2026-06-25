@@ -334,12 +334,12 @@ NextJS
 
         Conflict Resolution
 
-                        1. In real-time, we will not engage both router in the same application.
+                        1. In real-time, we will NOT engage both routers in the same application.
                             So, no question of conflict.
 
                         2. But if done (If both AppRouter and PageRouter are both engaged in the same app)
                             AppRouter has priority over PageRouter.
-                            Only when a resource is not foudn on AppRpouter, PageRouter is asked for the resource.
+                            Only when a resource is not found on AppRouter, PageRouter is asked for the resource.
      
     hr-app
         |- public       is used to hold all static files like images, videos ..etc.,
