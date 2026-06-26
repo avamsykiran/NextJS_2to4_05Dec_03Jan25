@@ -335,40 +335,145 @@ NextJS
         Conflict Resolution
 
                         1. In real-time, we will NOT engage both routers in the same application.
-                            So, no question of conflict.
+                            So, no question of conflict.(99% only AppRouter is used)
 
                         2. But if done (If both AppRouter and PageRouter are both engaged in the same app)
                             AppRouter has priority over PageRouter.
                             Only when a resource is not found on AppRouter, PageRouter is asked for the resource.
+
+        An anology for pathmappings or file-based routing.
      
-    hr-app
-        |- public       is used to hold all static files like images, videos ..etc.,
-        |- src
-            |-app                   is refered to the context-root ("/")
-                |-global.css        is the global style sheet (equivalent to 'index.css' in reactjs)
-                |-layout.tsx        root-layout. And layout controls the structure of the page
-                |-error.tsx         provides the error-content of the page.
-                |-page.tsx          provides the content of the page.
-                |
-                |-departments       is accessable as /departments
-                |   |-page.tsx
-                |
-                |-employees         is accessable as /employees
-                |   |-layout.tsx 
-                |   |-page.tsx
-                |   |-list          is accessable as /employees/list
-                |   |   |-page.tsx
-                |   |-save          is accessable as /employees/save
-                |   |   |-page.tsx
-                |
-                |-projects          is accessable as /projects
-                |   |-page.tsx    
-                |
-            |- lib                  put all .ts files holding bussiness logic
-            |- ui                   put all .tsx files for reusable components. 
-            |                       (not directly acceswsable from the router)
-            |-pages
-                |-about.tsx         http://localhost:3000/about
-                |-home.tsx          http://localhost:3000/home
-                |-contactUs.tsx     http://localhost:3000/contactUs
+            hr-app
+                |- public       is used to hold all static files like images, videos ..etc.,
+                |- src
+                    |-app                   is refered to the context-root ("/")
+                        |-global.css        is the global style sheet (equivalent to 'index.css' in reactjs)
+                        |-layout.tsx        root-layout. And layout controls the structure of the page
+                        |-error.tsx         provides the error-content of the page.
+                        |-page.tsx          provides the content of the root-page.
+                        |
+                        |-departments       is accessable as /departments
+                        |   |-page.tsx      provides the content of the departments-page.
+                        |
+                        |-employees         is accessable as /employees
+                        |   |-layout.tsx 
+                        |   |-page.tsx      provides the content of the employees-page.
+                        |   |-list          is accessable as /employees/list
+                        |   |   |-page.tsx  provides the content of the employees-list-page.
+                        |   |-save          is accessable as /employees/save
+                        |   |   |-page.tsx  provides the content of the employees-save-page.
+                        |
+                        |-projects          is accessable as /projects
+                        |   |-page.tsx      provides the content of the projects-page.
+                        |
+                        |-api
+                            |-route.ts      will be a rest api responding to /api
+                            |-depts
+                                |-route.ts  will be a rest api responding to /api/depts
+                            |-emps
+                                |-route.ts  will be a rest api responding to /api/emps
+                    |                
+                    |- lib                  put all .ts files holding bussiness logic
+                    |- ui                   put all .tsx files for reusable components. 
+                    |                       (not directly accessable using any url, 
+                    |                       ment to be used in routed-components)
+                    |
+                    |-pages
+                        |-about.tsx         http://localhost:3000/about
+                        |-home.tsx          http://localhost:3000/home
+                        |-contactUs.tsx     http://localhost:3000/contactUs
+                        |-api
+                            |-titles.ts     will be a rest api responding to /api/titles
+                            |-desgs.ts      will be a rest api responding to /api/desgs
+
+    AppRouter vs PageRouter Comparision
+
+         Features            AppRouter               PagesRouter
+        ----------------------------------------------------------        
+        Components          By default              By Default
+                            Server Components       Client Components
+
+                            "use server" and "use client" instructions can change
+                            the default behaviour of a component
+
+        Layout              Layouts can be          Layouts are static
+                            nested and dynamic
+
+        Priority            App router has higher   PagesRouter has the 
+                            priority                fallback priority.
+        
+        File-based          Folders are             Files are directly mapped
+        routing             mapped as routes        as routes.
+        
+    App Router Folder Naming Conventions / Rules
+
+        1. folderName           is mapped to a route segment
+            
+            app
+            |- depts
+                |-page.tsx            /depts
+                                
+        2. [folderName]         is mapped to a url-parameter
+
+            app
+            |- welcome
+                |-[userName]
+                    |-page.tsx          /welcome/vamsy
+                                        /welcome/suresh
+                                        /welcome/murhty
+                                        ...etc.,
+        
+        3. [...folderName]       is mapped to a list of url-parameter
+
+            app
+            |- welcome
+                |-[...userNames]
+                   |-page.tsx           /welcome/vamsy
+                                        /welcome/suresh/vamsy
+                                        /welcome/murthy/vamsy/suresh
+                                        ...etc.,
+
+        4. [[...folderName]]      is mapped to a optional list of url-parameters
+
+            app
+            |- welcome
+                |-[[...userName]]
+                   |-page.tsx           /welcome
+                                        /welcome/vamsy
+                                        /welcome/vamsy/murthy
+                                        /welcome/vamsy/murthy/suresh
+                                        ...etc.,
+        
+        5. _folderName           is not mapped to any route or url, it is consedered as a private folder
+
+        6. (folderName)          is not mapped to any route or url, it is used to group urls for organized pattern.
+
+            app
+            |- (adminRoutes)
+            |      |-addUser
+            |      |   |-page.tsx      /addUser
+            |      |-userList
+            |      |   |-page.tsx      /usersList
+            |
+            |- (consumerRoutes)         
+            |      |-addOrder
+            |      |   |-page.tsx      /addOrder
+            |      |-invoicesList
+            |      |   |-page.tsx      /invoiceList
+            |
+            |- (employeeRoutes)
+            |      |-addProduct
+            |      |   |-page.tsx      /addProduct
+            |      |-inventory
+            |      |   |-page.tsx      /inventory
     
+    Integrating Bootstrap On NextJS
+
+        Bootstrap is a responsive web design library
+        Bootstrap-Icons is a resposnive bootstrap friendly icon library.
+
+        npm i bootstrap bootstrap-icons
+
+        import the css and js files from bootstrap and bootstrap0icons in the layout.tsx file.
+
+
