@@ -1,0 +1,243 @@
+React JS Intro
+--------------------------------------------------------------------
+
+    is a javascript based SPA framework.
+
+    SPA - Single Page Application. is a web application that has only one html page
+    and the entire content of the page is managed and generated on the client machine.
+
+    Static WebSite
+        a folder having pre-written .html documents hosted on a HTTP SERVER.
+
+    Dynamic Web Applications
+
+        Http-Server                                  Client/Browser
+
+            Server Side Programs
+            (servlets/jsp/php/aspx/razor..etc.,)
+                            <----------------REQ---------
+                        generate html dynamically
+                            ------ (generated html) RESP ------>
+                            
+                            <----------------REQ---------
+                        generate html dynamically
+                            ------ (generated html) RESP ------>
+
+    Single Page Applications
+
+        Http-Server                                  Client/Browser
+
+            spa-bundle
+            (index.html + .js)
+                            <----------------REQ---------
+                            ------ (spa-bundle) RESP ------>    index.html along with the JS will be loaded
+
+                                                                any form submition or any event or any link
+                                                                are all handled by the JS on the clietn itself.
+
+                                                                the JS on the client will generate html dynamically
+                                                                and will replace the content of the index.html
+                                                                as and when neeed.
+        Application Server
+            
+            rest-api        <--------.json/.xml------------>    spa-bundle will call the rest-api for data operations.
+
+    Create React JS Application
+
+        npx create-react-app app-name
+
+        or
+        
+        npm create vite@latest my-app -- --template react
+        npm i
+
+    React JS Components
+
+        A component is a reusable isolated unit that forms the html-extension of React.
+
+        html-extension allows us to create our own html elements and attributes.
+
+        The html-element that we create using react is called a Component.
+
+        1. Class Components
+        2. Function Components
+
+        Class Component 
+            is a javascript class that is extended from React.Component class.
+
+            class Dashboard extends React.Component{
+                constructor(props){
+                    super(props);
+                    this.state = {};
+                }
+
+                render(){
+                    return (
+                        /*an html element*/
+                    );
+                }
+            }
+
+            <Dashboard></Dashboard>
+
+        Function Component
+
+            is a javascript function that accpets the props as a parmeter and returns an html-element.
+
+            const Banner = (props) => (/* html element */ );
+
+            <Banner></Banner>
+
+        JSX - JavsScript eXtended MarkUp Language / JavaScript XML.
+
+            is a amolgamation of javascript + html.
+
+            in other words JSX is javascript embeded with HTML.
+
+            This is deviced to eliminate a lot of boiler plate coding while DOM manipulation is written.
+
+            .js
+
+                let userName = "Vamsy";
+                let pObj = document.createElement("p");
+                pObj.innerText = `Hello ${userName}! How Are You?`;
+            
+            .jsx
+
+                let userName = "Vamsy";
+                let pObj = <p>{userName}</p>;
+
+            .js
+
+                let friends = ['Vamsy','Rahul','Varma','Vijay'];
+                let frdList = document.createElement("ol");
+                
+                for(let f of friends){
+                    let friendItem = document.createElement("li");
+                    friendItem.innerText = f;
+                    frdList.append(friendItem);
+                }
+
+            .jsx
+
+                let friends = ['Vamsy','Rahul','Varma','Vijay'];
+                let frdList = (
+                    <ol>
+                        { friends.map( f => <li>{f}</li> ) }
+                    </ol>
+                );
+
+            Rules
+
+                1. "class" attribute is not to be used, instead 'className' is to be used.
+                2. the html elements must be always written in lower-case 
+                3. the entire jsx is case-sensitive.
+                4. the function component or the 'render()' function of a class component can return only one top-most element.
+
+                const Banner = () => <div></div>; 
+                const Header = () => (
+                    <header> 
+                      <section>
+                      
+                      </section> 
+                    </header>
+                 ) ;
+
+    Class Component
+
+        From React.Component class, 'state','setState()','render()','componentDidMount()','componentDidUpdate()'
+        and a few more life cycle methods are inhereted by a class Component.
+
+        state       is the field of a Class Component that holds all the data to be managed by that component.
+                    state is continuosly monitored and as and when the state is modified, the 'render()' method is invoekd.
+                    state is immutable, state is only replacable using 'setState()' method.
+
+        render()    is the method that returns the DOM to be displayed by this component.
+                    we developes ovveride the 'render()' method to decide on the DOM.
+
+        setState()  can take a full or partial state and replace the existing state.
+
+    Function Component vs Class Component
+
+        function component has no 'state' or any other life cycle methods as compared to the class Component.
+        And hence, Function Components are also called state-less components.
+    
+    'props' is short for properties. 'props' carry data from a parent component to a child component.
+            props can be passed as attributes on to the child component tag from parent component.
+
+Shadow DOM / Virtual DOM
+
+    is a in-memory copy of DOM managed by the react.
+
+    Any change to the actual DOM will be very costly as it is directly linked with the screen.
+
+    But changes to shadow DOM are much cheaper as it is not going reflect directly on the screen.
+
+    Each time 'state' is modified, the shadow DOM is tweeked accordingly. Once all the changes
+    on the shadom DOM is done, shadow DOM is superimposed on the actual DOM and only the final changes
+    are shipped to the actual DOM.
+
+    An attribute called 'key' is maintaiend on repitative DOM entries, to uniquly
+    identify that DOM entry and mange changes.
+
+ReactJS on Typescript
+
+    npm i -g typescript
+
+    npx create-react-app app-name --template typescript
+
+    or
+        
+    npm create vite@latest app-name -- --template react-ts
+
+Life Cycle Methods Of A Component
+
+    constructor()
+        |
+        ↓
+        render()
+            |
+            ↓
+            componentDidMount()     //is used to execute any task after the first rendering..!
+                        
+                        /************************************************/
+                            setState() has to get invoked
+                            either in the componentDidMount()
+                            or due to any event handler
+                        /************************************************/
+                                    |
+                                    ↓
+                                    render()
+                                        |
+                                        ↓
+                                        componentDidUpdate()  //is used to execute any task after every rendering..!
+        
+ReactJS Hooks
+
+    Hook is a special function that provides features to a function component.
+
+    useState        will add state feature to a function component.
+
+                    let [getter,setter] = useState(initalValue);
+
+                    let [x,setX] = useState(0);
+
+                    use 'x' to read the value
+                    use 'setX' to change the value
+
+    useEffect       will add life cycle feature to the function component
+
+                    useEffect(callBack)
+
+                        the callBack is executed after every rendering...!
+
+                    useEffect(callBack,[])
+                        the array here indicates dependencies.
+                        and here dependencies are empty.
+                        the callBack is executed only one after first rendering...!
+
+                    useEffect(callBack,[feild1,field2])
+                        the array here indicates dependencies.
+                        and here field1 and field2 are dependencies
+                        the callBack is executed after every rendering... if there a change in value of
+                        field1 or field2.

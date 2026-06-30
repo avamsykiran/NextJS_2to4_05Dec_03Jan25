@@ -1,0 +1,19 @@
+
+.navbar {
+    margin: 0px;
+    padding: 8px;
+    margin-bottom: 2px;
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.titleBadge{
+    font-weight: bolder;
+    color: #ffffff;
+}
+
+.navbar a{
+    display: inline-block;
+    margin: 2px;
+    text-decoration: none;    
+}
