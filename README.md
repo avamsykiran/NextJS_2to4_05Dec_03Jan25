@@ -263,7 +263,7 @@ NextJS
             Next.js scans the component during the production build (next build). 
             It switches a route from Static to SSR if we use any Dynamic Features or make an Uncached Data Request.
 
-            Triggers that automatically switch a page to SSR:
+            Triggers, that automatically switch a page to SSR from SSG:
                 Reading user headers or cookies: If your component calls headers() or cookies(), Next.js realizes it cannot pre-render this at build time (since it needs the visitor's specific browser request).
 
                 Reading URL search parameters: If a page component reads the searchParams prop (e.g., /?search=shoes), it has to render on demand.
@@ -292,6 +292,25 @@ NextJS
         Rule of Thumb for Next.js
             Don't make everything an RCC. In Next.js, the best practice is to keep the layout, data fetching, and static structure in Server Components (RSC), and leaf out the specific interactive elements (like a search bar, a mobile menu toggle, or a submit button) into isolated Client Components (RCC).
 
+        When to Use Server vs. Client Components
+
+            Use Case / Requirement	                            Server Component (RSC)	    Client Component (RCC)
+            =======================================================================================================
+            Fetch data directly from databases, APIs, or SDKs	            Yes	                    No
+            Keep sensitive credentials (API keys, tokens) secure	        Yes	                    No
+            Render large HTML layouts with heavy npm packages               Yes (0KB Client JS)	    No            
+            Attach UI event listeners (onClick, onChange, onSubmit)	        No	                    Yes
+            Manage local UI state (useState, useReducer)	                No	                    Yes
+            Hook into component life cycles (useEffect, useLayoutEffect)	No	                    Yes
+            Access browser-exclusive APIs (window, localStorage, document)	No	                    Yes
+
+        Component Composition: The Golden Rule
+
+            1. Never shall we include a server component inside a client component.        
+            2. If done so, the server-component loses its server-side processing ability.
+            3. In senarios where a parent is a client-component and a child is a server component,
+                the server-component must be passed as a 'prop' to the client-component. Meaning
+                the client-component must be designed as a HOC.
 
     NextJS built-in Components
 
@@ -317,9 +336,20 @@ NextJS
     
         5. <Suspense> (from React)
             Use Case: Handling loading states for dynamic data fetching.
-            Why use it: You wrap slow data-fetching components inside <Suspense fallback="{<LoadingSkeleton"/>}>. Next.js will stream the rest of the page instantly while showing a loading state for just the slow component until it finishes rendering on the server.
+            Why use it: You wrap slow data-fetching components inside <Suspense fallback={<LoadingSkeleton/>}>. Next.js will stream the rest of the page instantly while showing a loading state for just the slow component until it finishes rendering on the server.
+
+            <Suspense fallback={<p>Please wait while loading...!</p>}>
+                <ContactsList />
+            </Suspense>
+    
+            <Suspense fallback={<LoadingSkeleton/>}>
+                <ContactsList />
+            </Suspense>
     
     NextJS Metadata API
+
+        <Head />    to control the meta-data in reactjs 14 or earlier versions.
+                    that is replaced with Metadata API.                    
 
         Static Metadata Config
             // app/about/page.tsx
@@ -333,7 +363,7 @@ NextJS
                     description: 'The premier goods transport tracker.',
                     images: ['/og-about.jpg'],
                 },
-            };
+            };           
 
             export default function AboutPage() {
                 return <main>About Content</main>;
@@ -366,14 +396,24 @@ NextJS
                 const { id } = await params;
                 return <main>Product Details for {id}</main>;
             }
-
+   
     Integrating Bootstrap On NextJS
+            Bootstrap is a responsive web design library
+            Bootstrap-Icons is a resposnive bootstrap friendly icon library.
 
-        Bootstrap is a responsive web design library
-        Bootstrap-Icons is a resposnive bootstrap friendly icon library.
+        Option1
+            
+            npm i bootstrap bootstrap-icons
 
-        npm i bootstrap bootstrap-icons
+            import the css and js files from bootstrap and bootstrap-icons in the layout.tsx file.
 
-        import the css and js files from bootstrap and bootstrap-icons in the layout.tsx file.
+            bootstrap related JS files can not be optimized by nextjs and creates a heavy piggy-back
+            on each request of the application.
+
+        Option2
+            
+            npm i bootstrap bootstrap-icons react-bootstrap
+
+            import the css  files alone from bootstrap and bootstrap-icons in the layout.tsx file.
 
 
