@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.min.css"
 import "./globals.css";
 import { Container } from "react-bootstrap";
+import Header from "@/components/Header"; // '@' refers to /src/
 
 export const metadata: Metadata = {
   title: "AdB 1.0",
@@ -18,6 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">      
       <body>
+        <Header title="Address Book 1.0" />
         <Container fluid>
         {children}
         </Container>
