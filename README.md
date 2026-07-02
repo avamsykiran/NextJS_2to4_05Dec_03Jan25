@@ -416,4 +416,10 @@ NextJS
 
             import the css  files alone from bootstrap and bootstrap-icons in the layout.tsx file.
 
+    Server Only
 
+        npm i server-only
+
+        this library allows a dev to mark
+        a .ts file as server only, ensuring that that .ts
+        never ever leaves the server.
