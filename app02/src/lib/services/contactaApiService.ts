@@ -1,29 +1,29 @@
 import "server-only";
 import { Contact } from "../models/Contact";
 
-const API_URL = "http://loca;lhost:9999/contacts";
+const API_URL = "http://localhost:9999/contacts";
 
-export const getAll = async () => {
+export const getAllContacts = async () : Promise<Contact[]> => {
     const res = await fetch(API_URL);
 
     if (!res.ok) {
         throw new Error("failed retriving records");
     }
 
-    return res.json();
+    return res.json() as Promise<Contact[]>;
 }
 
-export const getById = async (id: number) => {
+export const getContactById = async (id: number) : Promise<Contact> => {
     const res = await fetch(API_URL + "/" + id);
 
     if (!res.ok) {
         throw new Error("failed retriving records");
     }
 
-    return res.json();
+    return res.json() as Promise<Contact>;
 }
 
-export const addContact = async (c: Contact) => {
+export const addContact = async (c: Contact) : Promise<Contact> => {
     const res = await fetch(API_URL, {
         method: "POST",
         headers: {
@@ -36,10 +36,10 @@ export const addContact = async (c: Contact) => {
         throw new Error("failed saving records");
     }
 
-    return res.json();
+    return res.json() as Promise<Contact>;
 }
 
-export const updateContact = async (c: Contact) => {
+export const updateContact = async (c: Contact) : Promise<Contact> => {
     const res = await fetch(API_URL + "/" + c.id, {
         method: "PUT",
         headers: {
@@ -52,7 +52,7 @@ export const updateContact = async (c: Contact) => {
         throw new Error("failed saving records");
     }
 
-    return res.json();
+    return res.json() as Promise<Contact>;
 }
 
 export const deleteById = async (id: number) => {
