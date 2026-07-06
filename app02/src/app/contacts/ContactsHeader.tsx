@@ -18,4 +18,5 @@ const ContactsHeader = () => {
         </Nav>
     );
 }
+
 export default ContactsHeader;

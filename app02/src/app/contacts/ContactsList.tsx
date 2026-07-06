@@ -2,7 +2,7 @@
 
 import { Contact } from "@/lib/models/Contact";
 import Link from "next/link";
-import { Table } from "react-bootstrap";
+import { Button, Table } from "react-bootstrap";
 
 const ContactsList = ({ contacts }: { contacts: Contact[] }) => (
     <Table striped hover bordered>
@@ -24,10 +24,15 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => (
                         <td>{c.mobile}</td>
                         <td>{c.mailId}</td>
                         <td>
-                            <Link href={`/contacts/edit/${c.id}`} className="btn btn-sm btn-secondary">
+                            <Link href={`/contacts/edit/${c.id}`} className="btn btn-sm btn-secondary me-1">
                                 <i className="bi-pen-fill" />
                                 EDIT
                             </Link>
+
+                            <Button variant="danger">
+                                <i className="bi-trash" />
+                                DELETE
+                            </Button>
                         </td>
                     </tr>
                 ))
