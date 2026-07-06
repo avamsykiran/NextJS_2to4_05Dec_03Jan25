@@ -423,3 +423,112 @@ NextJS
         this library allows a dev to mark
         a .ts file as server only, ensuring that that .ts
         never ever leaves the server.
+
+    Incremental Static Regeneration (ISR)
+
+        Incremental Static Regeneration (ISR) is a powerful Next.js feature that bridges the gap between Static Rendering (fast but static) and Dynamic Rendering (slower but real-time).
+
+        It follows Stale-While-Revalidate
+            We configure a time limit (in seconds) called the revalidate period.
+
+            Here is the exact sequence of events if you set a revalidate time of 60 seconds:
+
+            At Build Time: Next.js pre-renders the page statically.
+
+            User 1 visits (at second 30): Next.js serves the cached static HTML instantly. It’s ultra-fast.
+
+            User 2 visits (at second 61): The 60-second timer has expired. The data is now considered stale. However, Next.js still serves User 2 the old cached page instantly so they don't experience a lag.
+
+            In the Background: Next.js silently triggers a background revalidation. It runs the data fetch, regenerates a fresh static HTML file, and updates the cache.
+
+            User 3 visits (at second 70): User 3 (and everyone after them) now receives the newly updated, fresh static page.
+
+        Implementing ISR in Next.js
+
+            In the App Router, implementing ISR is as simple as adding a segment configuration variable or passing a next.revalidate option to your standard fetch request.
+
+            Method 1: Page-Level Revalidation
+
+                // app/products/[id]/page.tsx
+
+                export const revalidate = 3600; // Revalidate this page at most once every hour (in seconds)
+
+                export default async function ProductPage({ params }: { params: { id: string } }) {
+                    const res = await fetch(`https://api.example.com/products/${params.id}`);
+                    const product = await res.json();
+
+                    return (
+                        <main className="p-6">
+                            <h1 className="text-2xl font-bold">{product.name}</h1>
+                            <p className="text-slate-600">${product.price}</p>
+                        </main>
+                    );
+                }
+
+            Method 2: Fetch-Level Revalidation
+
+                export default async function DashboardPage() {
+                    // This layout component updates its inventory metrics every 10 seconds
+                    const inventoryRes = await fetch('https://api.example.com/inventory', {
+                        next: { revalidate: 10 },
+                    });
+                    
+                    // This layout component updates its store location data only once a day
+                    const locationsRes = await fetch('https://api.example.com/locations', {
+                        next: { revalidate: 86400 },
+                    });
+
+                    return (
+                        <div>{/* Render logic */}</div>
+                    );
+                }
+
+            On-Demand Revalidation
+
+                // app/actions.ts
+                "use server";
+
+                import { revalidateTag, revalidatePath } from 'next/cache';
+
+                export async function updateProductInfo(productId: string) {
+                    // 1. Update the record in your database
+                    await db.updateProduct(productId);
+
+                    // 2. Instantly purge the static cache for just this page on-demand
+                    revalidatePath(`/dashboard`);
+                }
+
+    Server Actions
+
+        A Server Action is a native Next.js feature built on top of React's architecture that allows us to execute secure server-side code directly from user interactions in the browser.
+
+        // src/app/actions.ts
+        'use server'; // Tells Next.js: This file contains server execution functions only
+
+        import { revalidatePath } from 'next/cache';
+
+        export async function deleteProductAction(productId: string) {
+            // Direct access to our database - completely safe!
+            // await db.products.delete(productId);
+            console.log(`Successfully deleted product ID: ${productId}`);
+
+            // Purge the cache layer for this page to visually remove the product instantly
+            revalidatePath('/inventory');
+        }
+
+        // src/app/inventory/ProductRow.tsx
+        'use client';
+
+        import { deleteProductAction } from '../actions';
+
+        export default function ProductRow({ id, name }: { id: string; name: string }) {
+            return (
+                <div>
+                    <span>{name}</span>
+                
+                    <button onClick={() => deleteProductAction(id)}>
+                        Remove Item
+                    </button>
+                </div>
+            );
+        }
