@@ -15,7 +15,7 @@ const ContactForm: FC<{oldContact?:Contact,isEditing:boolean}> = ({oldContact,is
         reset,
         formState: { errors },
     } = useForm<Contact>({
-        defaultValues: isEditing ? { id: 0, name: '', mobile: '', mailId: '' } : {...oldContact}
+        defaultValues: !isEditing ? { id: 0, name: '', mobile: '', mailId: '' } : {...oldContact}
     });
 
     const save: SubmitHandler<Contact> = (contact:Contact) => {

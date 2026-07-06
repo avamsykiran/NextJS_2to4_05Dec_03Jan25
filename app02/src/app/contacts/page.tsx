@@ -17,15 +17,11 @@ const ContactsListPage = async () => {
     }
 
     return (
-        <section className="m-4 p-4 border border-info">
-            <h3>Contacts List</h3>
-
-            <Suspense
-                fallback={<MsgBox msg="Please wait while laoding..." variant="info" />}>
-                {errMsg && <MsgBox variant="danger" msg={errMsg} />}
-                {contacts && <ContactsList contacts={contacts} />}
-            </Suspense>
-        </section>
+        <Suspense
+            fallback={<MsgBox msg="Please wait while laoding..." variant="info" />}>
+            {errMsg && <MsgBox variant="danger" msg={errMsg} />}
+            {contacts && <ContactsList contacts={contacts} />}
+        </Suspense>
     )
 
 };
