@@ -532,3 +532,120 @@ NextJS
                 </div>
             );
         }
+
+    State Management
+
+        Managing state efficiently is the backbone of any robust web application. In modern frameworks like Next.js, state management is split between standard client-side interactivity and server-side data fetching.
+
+        1. Local State & Lifting State
+
+            Local State is used when data only matters to a "single component" and its immediate visual layout. It lives and dies inside that component.
+
+                "use client";
+                import { useState } from 'react';
+
+                export function Counter() {
+                    const [count, setCount] = useState(0); // Pure local state
+                    return <button onClick={() => setCount(count + 1)}>Count: {count}</button>;
+                }
+            
+            Lifting State Up
+
+                When "two or more sibling components" need access to the exact same state, you "lift" that state up to their nearest common parent component. The parent holds the state and passes it down to the children via properties (`props`).
+
+                // Parent Component
+                export default function FleetManager() {
+                    const [selectedTruckId, setSelectedTruckId] = useState<string | null>(null);
+
+                    return (
+                        <div>
+                            {/* Sibling 1: Modifies the state */}
+                            <TruckList onSelectTruck={setSelectedTruckId} activeId={selectedTruckId} />
+                            {/* Sibling 2: Consumes the state */}
+                            <TruckMap activeTruckId={selectedTruckId} />
+                        </div>
+                    );
+                }
+
+        2. Context API
+
+            As applications grow, passing props down through multiple layers of components (known as "Prop Drilling") becomes highly repetitive and error-prone. The "Context API" solves this by creating a global broadcast channel that any nested child component can tune into instantly, bypassing intermediate parent components.
+
+            When to use Context:
+
+                * Low-frequency global UI states (e.g., Switching Dark/Light themes, sidebar toggle settings, regional language localization presets).
+
+                * "Avoid" using Context for high-frequency updates (like live mouse tracking or rapid real-time form inputs), as any change to a Context provider forces *all* consumer children components to re-render.
+
+            // src/context/ThemeContext.tsx
+            "use client";
+            import { createContext, useContext, useState } from 'react';
+
+            const ThemeContext = createContext<{ theme: string; toggleTheme: () => void } | null>(null);
+
+            export function ThemeProvider({ children }: { children: React.ReactNode }) {
+                const [theme, setTheme] = useState('light');
+                const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');
+
+                return (
+                    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+                        {children}
+                    </ThemeContext.Provider>
+                );
+            }
+
+            // Custom hook for cleaner consuming syntax
+            export const useTheme = () => {
+                const context = useContext(ThemeContext);
+                if (!context) throw new Error('useTheme must be used within a ThemeProvider');
+                return context;
+            };
+
+        3. Server State vs. Client State
+
+            In modern Next.js development, the biggest architectural shift is recognizing that "not all data belongs in Client JavaScript state." State is divided by its source of truth.
+
+            Metric          Client State (UI State)     Server State (Data State) 
+            -----------------------------------------------------------------------------------------
+            What it is      Ephemeral browser memory    Data that lives securely 
+                            tracking layout conditions. in a database or external backend API. 
+            -----------------------------------------------------------------------------------------
+            Examples        Is a modal open?            Student profiles, product listings, 
+                            Is a dropdown active?       bank ledger balances, inventory counts.
+                            Current text typed in a 
+                            search input field?  
+            -----------------------------------------------------------------------------------------        Managed Via    `useState`, `useReducer`,    Server Components, standard async `fetch()`, 
+                            Context API, Zustand,       `updateTag`. 
+                            Redux, Jotai
+            -----------------------------------------------------------------------------------------        
+            Storage Location    Browser RAM memory.     Server-side memory caches, CDNs, 
+                                                        or persistent databases. 
+
+        The Next.js Paradigm Shift
+
+            In traditional single-page apps (SPAs), developers would fetch database data on load and dump it entirely into a massive global client-side state machine (like a complex Redux store).
+
+            In Next.js, "you don't do this." You let Server Components pull data directly using standard async functions. The server handles caching, request deduplication, and updates dynamically. Your client-side state tools are stripped down to focus exclusively on local UI transitions.
+
+            // src/app/dashboard/page.tsx
+            import { getLiveFleetMetrics } from '@/services/fleet';
+            import MobileSidebarWrapper from '@/components/MobileSidebarWrapper';
+            import MetricsGrid from '@/components/MetricsGrid';
+
+            export default async function DashboardPage() {
+                // 1. Server State: Pulled directly on the server. Zero Client JS overhead.
+                const fleetData = await getLiveFleetMetrics();
+
+                return (
+                    <main>
+                        {/* 2. Client State: Abstracted into a tiny leaf wrapper to manage toggles */}
+                        <MobileSidebarWrapper>
+                            <nav>{/* Sidebar links */}</nav>
+                        </MobileSidebarWrapper>
+
+                        {/* Render server state layout directly */}
+                        <MetricsGrid initialData={fleetData} />
+                    </main>
+                );
+            }
+
