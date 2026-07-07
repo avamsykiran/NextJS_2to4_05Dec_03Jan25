@@ -1,5 +1,6 @@
 "use client";
 
+import { deleteContactServerAction } from "@/actions/contactActions";
 import { Contact } from "@/lib/models/Contact";
 import Link from "next/link";
 import { Button, Table } from "react-bootstrap";
@@ -29,7 +30,7 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => (
                                 EDIT
                             </Link>
 
-                            <Button variant="danger">
+                            <Button variant="danger" size="sm" onClick={_e => deleteContactServerAction(c.id) }>
                                 <i className="bi-trash" />
                                 DELETE
                             </Button>

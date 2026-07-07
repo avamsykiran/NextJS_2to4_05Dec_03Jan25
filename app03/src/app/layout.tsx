@@ -7,7 +7,7 @@ import { Container } from "react-bootstrap";
 import Header from "@/components/Header"; // '@' refers to /src/
 
 export const metadata: Metadata = {
-  title: "AdB 1.0",
+  title: "AdB 2.0",
   description: "A demo app for Address Book",
 };
 
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">      
       <body>
-        <Header title="Address Book 1.0" />
+        <Header title="Address Book 2.0" />
         <Container fluid>
         {children}
         </Container>

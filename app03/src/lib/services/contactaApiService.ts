@@ -1,14 +1,12 @@
 import "server-only";
 import { Contact } from "../models/Contact";
-import { revalidateTag } from "next/cache";
-import { NEXT_CACHE_IMPLICIT_TAG_ID } from "next/dist/lib/constants";
 
 const API_URL = "http://localhost:9999/contacts";
 
 export const getAllContacts = async () : Promise<Contact[]> => {
     const res = await fetch(API_URL,{
         next: {
-            revalidate: 86400, //fetech contacts list only once per day
+            revalidate: 3600, //fetech contacts list only once per hour
             tags: ['contacts-list'] //this tag can be used to force revalidation.
         }
     });
@@ -36,14 +34,14 @@ export const addContact = async (c: Contact) : Promise<Contact> => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(c)
+        body: JSON.stringify({...c,id:undefined})
     });
 
     if (!res.ok) {
         throw new Error("failed saving records");
     }
 
-    revalidateTag("contacts-list","max");
+    //revalidateTag("contacts-list","max"); instead move this to relevant ServerAction 
 
     return res.json() as Promise<Contact>;
 }
@@ -61,12 +59,12 @@ export const updateContact = async (c: Contact) : Promise<Contact> => {
         throw new Error("failed saving records");
     }
 
-    revalidateTag("contacts-list","max");
+    //revalidateTag("contacts-list","max"); instead move this to relevant ServerAction 
 
     return res.json() as Promise<Contact>;
 }
 
-export const deleteById = async (id: number) => {
+export const deleteContactById = async (id: number) => {
     const res = await fetch(API_URL + "/" + id, {
         method: "DELETE"
     });
@@ -75,5 +73,5 @@ export const deleteById = async (id: number) => {
         throw new Error("failed saving records");
     }
 
-    revalidateTag("contacts-list","max");
+    //revalidateTag("contacts-list","max"); instead move this to relevant ServerAction 
 }

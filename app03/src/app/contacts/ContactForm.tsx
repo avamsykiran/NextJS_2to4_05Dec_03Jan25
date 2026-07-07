@@ -1,5 +1,6 @@
 "use client";
 
+import { addContactServerAction, updateContactServerAction } from "@/actions/contactActions";
 import { Contact } from "@/lib/models/Contact";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
@@ -11,16 +12,21 @@ const ContactForm: FC<{oldContact?:Contact,isEditing:boolean}> = ({oldContact,is
 
     const {
         register,
-        handleSubmit,
-        reset,
+        handleSubmit,        
         formState: { errors },
     } = useForm<Contact>({
         defaultValues: !isEditing ? { id: 0, name: '', mobile: '', mailId: '' } : {...oldContact}
     });
 
     const save: SubmitHandler<Contact> = (contact:Contact) => {
-        //form submition will be handled
-        router.push('/contacts');
+        
+        if(isEditing){
+            updateContactServerAction(contact);
+        } else {
+            addContactServerAction(contact);
+        }
+
+        //router.push('/contacts'); this is done already via redirect in server-actions.
     };
 
     return (
