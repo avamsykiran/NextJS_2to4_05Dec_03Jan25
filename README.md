@@ -4,6 +4,7 @@ NextJS
     is a UI-SPA framework based on React Router 7.
 
     Features
+    -----------------------------------------------------------------------------------
         Routing     is used for navigating from one component to another.
 
                     file system based routing is provided on top of
@@ -46,11 +47,11 @@ NextJS
                     Supports typescript for a type-safe application building.
 
     Createing a NextJS application
-
+    -----------------------------------------------------------------------------------
         npx create-next-app app-name
 
     NextJS Routing
-
+    -----------------------------------------------------------------------------------
         We have two routers to handle routing in nextJS
 
         Both routers depend on file system based routing that means 
@@ -140,8 +141,9 @@ NextJS
                             |-desgs.ts      will be a rest api responding to /api/desgs
 
     AppRouter vs PageRouter Comparision
-
-         Features            AppRouter               PagesRouter
+    -----------------------------------------------------------------------------------
+    
+        Features            AppRouter               PagesRouter
         ----------------------------------------------------------        
         Components          By default              By Default
                             Server Components       Client Components
@@ -221,7 +223,8 @@ NextJS
             |      |   |-page.tsx      /inventory
     
     NextJS Components and Content Generation
-
+    -----------------------------------------------------------------------------------
+    
         As already discussed, Server Components and Client Components are two types of components supported. NextJS
         has a unique Content Generation strategy.
 
@@ -313,7 +316,8 @@ NextJS
                 the client-component must be designed as a HOC.
 
     NextJS built-in Components
-
+    -----------------------------------------------------------------------------------
+    
         1. <Link>
             What it replaces: The standard HTML <a> anchor tag.
             Use Case: Client-side navigation between pages in your application.
@@ -347,7 +351,8 @@ NextJS
             </Suspense>
     
     NextJS Metadata API
-
+    -----------------------------------------------------------------------------------
+    
         <Head />    to control the meta-data in reactjs 14 or earlier versions.
                     that is replaced with Metadata API.                    
 
@@ -398,8 +403,10 @@ NextJS
             }
    
     Integrating Bootstrap On NextJS
-            Bootstrap is a responsive web design library
-            Bootstrap-Icons is a resposnive bootstrap friendly icon library.
+    -----------------------------------------------------------------------------------
+
+        Bootstrap is a responsive web design library
+        Bootstrap-Icons is a resposnive bootstrap friendly icon library.
 
         Option1
             
@@ -417,7 +424,7 @@ NextJS
             import the css  files alone from bootstrap and bootstrap-icons in the layout.tsx file.
 
     Server Only
-
+    -----------------------------------------------------------------------------------
         npm i server-only
 
         this library allows a dev to mark
@@ -425,7 +432,8 @@ NextJS
         never ever leaves the server.
 
     Incremental Static Regeneration (ISR)
-
+    -----------------------------------------------------------------------------------
+    
         Incremental Static Regeneration (ISR) is a powerful Next.js feature that bridges the gap between Static Rendering (fast but static) and Dynamic Rendering (slower but real-time).
 
         It follows Stale-While-Revalidate
@@ -499,7 +507,8 @@ NextJS
                 }
 
     Server Actions
-
+    -----------------------------------------------------------------------------------
+    
         A Server Action is a native Next.js feature built on top of React's architecture that allows us to execute secure server-side code directly from user interactions in the browser.
 
         // src/app/actions.ts
@@ -534,7 +543,8 @@ NextJS
         }
 
     State Management
-
+    -----------------------------------------------------------------------------------
+    
         Managing state efficiently is the backbone of any robust web application. In modern frameworks like Next.js, state management is split between standard client-side interactivity and server-side data fetching.
 
         1. Local State & Lifting State
@@ -576,31 +586,7 @@ NextJS
                 * Low-frequency global UI states (e.g., Switching Dark/Light themes, sidebar toggle settings, regional language localization presets).
 
                 * "Avoid" using Context for high-frequency updates (like live mouse tracking or rapid real-time form inputs), as any change to a Context provider forces *all* consumer children components to re-render.
-
-            // src/context/ThemeContext.tsx
-            "use client";
-            import { createContext, useContext, useState } from 'react';
-
-            const ThemeContext = createContext<{ theme: string; toggleTheme: () => void } | null>(null);
-
-            export function ThemeProvider({ children }: { children: React.ReactNode }) {
-                const [theme, setTheme] = useState('light');
-                const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');
-
-                return (
-                    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-                        {children}
-                    </ThemeContext.Provider>
-                );
-            }
-
-            // Custom hook for cleaner consuming syntax
-            export const useTheme = () => {
-                const context = useContext(ThemeContext);
-                if (!context) throw new Error('useTheme must be used within a ThemeProvider');
-                return context;
-            };
-
+            
         3. Server State vs. Client State
 
             In modern Next.js development, the biggest architectural shift is recognizing that "not all data belongs in Client JavaScript state." State is divided by its source of truth.
@@ -614,7 +600,8 @@ NextJS
                             Is a dropdown active?       bank ledger balances, inventory counts.
                             Current text typed in a 
                             search input field?  
-            -----------------------------------------------------------------------------------------        Managed Via    `useState`, `useReducer`,    Server Components, standard async `fetch()`, 
+            -----------------------------------------------------------------------------------------        
+            Managed Via    `useState`, `useReducer`,    Server Components, standard async `fetch()`, 
                             Context API, Zustand,       `updateTag`. 
                             Redux, Jotai
             -----------------------------------------------------------------------------------------        
@@ -648,4 +635,236 @@ NextJS
                     </main>
                 );
             }
+    
+    State Management using Context API
+    -----------------------------------------------------------------------------------
+    
+        createContext       is the reactjs fucntion used to create a context
+        .Provider           is a reactjs built-in property for a HOC used to apply context on its children.
+        useContext          is the reactjs hook that returns the context for consumption in any component that
+                            is nested in the HOC.
 
+            // src/context/ThemeContext.tsx
+            "use client";
+            import { createContext, useContext, useState } from 'react';
+
+            const ThemeContext = createContext<{ theme: string; toggleTheme: () => void } | null>(null);
+
+            export function ThemeProvider({ children }: { children: React.ReactNode }) {
+                const [theme, setTheme] = useState('light');
+                const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');
+
+                return (
+                    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+                        {children}
+                    </ThemeContext.Provider>
+                );
+            }
+
+            // Custom hook for cleaner consuming syntax
+            export const useTheme = () => {
+                const context = useContext(ThemeContext);
+                if (!context) throw new Error('useTheme must be used within a ThemeProvider');
+                return context;
+            };
+
+    State Management using Redux
+    -----------------------------------------------------------------------------------
+    
+          Redux
+            is an independent library used to maintain state globally and is 
+            used by a varity of frameworks like Angular, React ...etc.,
+
+            Redux Arch
+
+            store       is the global-state that contians the entire data of the applciation.
+                        an app can have only one store
+
+                        whenever the data in the store gets modified it notifies the
+                        relevent components automatically
+
+            reducer(s)  is a function that modifies the data in the store when reqeusted
+                        by a dispatch
+
+            action      is a object or function that indicates
+                            what-operation-has-to-be-done (refered as action-type)
+                            what-is-the-data-needed-for-that-operation (refered as payload)
+
+            store -------------------------------------------
+                ↑               ↓                           ↓
+                |               |                           |
+                |               Component1                  |
+                |               |                           Component2
+                |               | dispatch(action)          |
+                |               |                           | dispatch(action)
+                |               |                           |
+                reducer(s) ←----------------------------------
+
+        Redux Tool Kit
+
+            is an enchanced layer on redux to create and mange the store
+
+            Slice           a slice refers to a piece of State.
+                            a slice has initialState, reducers and asyncThunks.
+
+                            initialState    is the initial piece of data
+                            reducer         is a function that manipulates 
+                                            data as per an incoming action
+                            action          is an object that indictes an
+                                            operation.
+                            asyncThunks     is an asynchronous function that 
+                                            is used for api calls.
+
+            createSlice     is a function used to create a slice
+
+                            const mySlice = createSlice({
+                                name:'sliceName',
+                                initalState,
+                                reducers: {
+                                    //list of reducer functions where 
+                                    //each function has to accept currentState and action
+                                    //and return modifiedState
+                                },
+
+                            });
+
+            createAsyncThunk    is used create asynchrnous actiosn called 'thunks'
+                                these thunks are uysed to make rest-api calls.
+
+            configureStore  is a function used to link reducers with Store
+
+                            export const store = configureStore({
+                                reducer: {
+                                    reducerLabel: myReducer,
+                                },
+                            });
+
+        React-Redux
+            is a bridge service between Redux/RTK and ReactJS.
+
+            Provider        is a component that is sued wrap the Store on the app.
+
+                                <Provider store={store}>
+                                    <App />
+                                </Provider>
+
+            useSelector     is a hook used to extract required data from state.
+
+            useDispatch     is a hook that return a 'dispatch' function that 
+                            is used to send an action from a component to a reducer.            
+        
+        npm i @reduxjs/toolkit react-redux
+
+    State Management using Zustand
+    -----------------------------------------------------------------------------------
+        
+        Zustand (German for "state") is a fast, lightweight, and minimalist state management library for React. It has become the go-to alternative to Redux Toolkit in modern Next.js development because it achieves the same global centralized data workflow with fractional boilerplate and zero complex provider wrapper nesting.
+
+        Installation
+            npm install zustand
+
+        Why Zustand is Ideal for Next.js
+            No Context Providers Needed: Unlike the React Context API or Redux, Zustand does not require you to wrap your layout in a <Provider> component. Components just hook directly into the store.
+
+            Ultra-Small Footprint: It has a bundle size of around 1.5 KB, compared to Redux Toolkit which is over 30 KB. This aligns perfectly with Next.js's goal of keeping client-side JavaScript minimal.
+
+            Render Optimizations: It uses simple hook selectors. If a component only subscribes to state.isSidebarOpen, it will only re-render when that specific boolean flips, ignoring changes to other variables in the store.
+
+            The Catch with Next.js: The SSR Singleton Problem
+                In a standard Single Page App (Vite or CRA), you can just create a global store instance file and export it.
+
+                However, in Next.js, your code runs on the server first to generate HTML. If you export a raw global singleton store, that single instance is initialized once on the server memory and shared across every single concurrent user hitting your website, leading to severe data leaks between users.
+
+                To use Zustand safely in Next.js, you have two options depending on your architecture:
+
+                    Option A (Simple & Common): Keep the store strictly client-side by lazy-initializing or wrapping components in a "use client" check.
+
+                    Option B (Advanced & Robust): Create a per-request Store Provider pattern (similar to Redux setup) if you need to pre-hydrate the store with server-fetched data.
+
+        Option A (Simple & Common)
+            1. Define the store
+                We don't need any context providers. Just use the create function to build a hook:
+
+                TypeScript
+                // src/store/useCounterStore.ts
+                import { create } from 'zustand';
+
+                interface CounterState {
+                    count: number;
+                    increment: () => void;
+                    decrement: () => void;
+                }
+
+                export const useCounterStore = create<CounterState>((set) => ({
+                    count: 0,
+                    increment: () => set((state) => ({ count: state.count + 1 })),
+                    decrement: () => set((state) => ({ count: state.count - 1 })),
+                }));
+
+            2. Consume it in a component
+                Import the hook into any Client Component ("use client") and 
+                extract exactly what we need using a selector function:
+
+                TypeScript
+                // src/components/Counter.tsx
+                "use client";
+
+                import { useCounterStore } from '@/store/useCounterStore';
+
+                export default function Counter() {
+                    // Select specific values atomically to optimize re-renders
+                    const count = useCounterStore((state) => state.count);
+                    const increment = useCounterStore((state) => state.increment);
+                    const decrement = useCounterStore((state) => state.decrement);
+
+                    return (
+                        <div className="p-4 border rounded-xl max-w-xs text-center space-x-2">
+                            <h3 className="mb-2 font-bold">Count: {count}</h3>
+                            <button onClick={decrement} className="btn btn-secondary btn-sm">-</button>
+                            <button onClick={increment} className="btn btn-primary btn-sm">+</button>
+                        </div>
+                    );
+                }
+
+        Option B (Advanced & Robust)
+
+            1. the Vanilla Store Creator
+
+                // src/store/useVehicleStore.ts
+                import { createStore } from 'zustand/vanilla';
+                import { useStore } from 'zustand';
+
+                export interface Vehicle {
+                    id: string;
+                    model: string;
+                    type: 'diesel' | 'petrol';
+                    status: string;
+                }
+
+                export interface VehicleState {
+                    vehicles: Vehicle[];
+                    activeFilter: string;
+                    setVehicles: (vehicles: Vehicle[]) => void;
+                    setFilter: (filter: string) => void;
+                }
+
+                export interface VehicleProps {
+                    vehicles: Vehicle[];
+                }
+
+                // 1. Define a creator function that builds a completely isolated instance
+                export const createVehicleStore = (initProps?: VehicleProps) => {
+                    return createStore<VehicleState>((set) => ({
+                        vehicles: initProps?.vehicles ?? [],
+                        activeFilter: 'all',
+                        setVehicles: (vehicles) => set({ vehicles }),
+                        setFilter: (activeFilter) => set({ activeFilter }),
+                    }));
+                };
+
+                // 2. Infer the precise TypeScript configuration types
+                export type VehicleStore = ReturnType<typeof createVehicleStore>;
+
+            2: Build the Store React Context & Provider
+
+                
