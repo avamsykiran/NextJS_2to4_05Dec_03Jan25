@@ -867,4 +867,109 @@ NextJS
 
             2: Build the Store React Context & Provider
 
-                
+                // src/store/VehicleStoreProvider.tsx
+                "use client";
+
+                import { createContext, useContext, useRef } from 'react';
+                import { useStore } from 'zustand';
+                import { createVehicleStore, type VehicleStore, type VehicleState } from './useVehicleStore';
+
+                // Initialize the context container bound to our specific store instance type
+                export const VehicleStoreContext = createContext<VehicleStore | null>(null);
+
+                interface ProviderProps {
+                    initialData: { vehicles: any[] };
+                    children: React.ReactNode;
+                }
+
+                export function VehicleStoreProvider({ initialData, children }: ProviderProps) {
+                    // Use a mutable React ref to ensure this exact store instance is only created ONCE 
+                    // during the entire client-side layout mounting phase
+                    const storeRef = useRef<VehicleStore | null>(null);
+
+                    if (!storeRef.current) {
+                        storeRef.current = createVehicleStore({ vehicles: initialData.vehicles });
+                    }
+
+                    return (
+                        <VehicleStoreContext.Provider value={storeRef.current}>
+                        {children}
+                        </VehicleStoreContext.Provider>
+                    );
+                }
+
+                // Custom selector hook to safely interact with state values anywhere down the layout
+                export function useVehicleStore<T>(selector: (state: VehicleState) => T): T {
+                    const storeContext = useContext(VehicleStoreContext);
+                    if (!storeContext) {
+                        throw new Error("useVehicleStore must be used within a VehicleStoreProvider wrapper.");
+                    }
+                    // Binds the native vanilla Zustand store cleanly back into React's reactive render cycle
+                    return useStore(storeContext, selector);
+                }
+
+            3: Fetch Data on the Server & Pre-Hydrate the Layout
+
+                // src/app/fleet/page.tsx
+                import { VehicleStoreProvider } from '@/store/VehicleStoreProvider';
+                import FleetDashboardView from '@/components/FleetDashboardView';
+
+                async function fetchLiveFleetData() {
+                    // Simulate a database query or secure server execution payload
+                    // In production, this can call: await db.vehicles.findMany()
+                    return [
+                        { id: '1', model: 'Maruti Suzuki Swift', type: 'diesel', status: 'In Transit' },
+                        { id: '2', model: 'Maruti Suzuki Baleno', type: 'petrol', status: 'Available' },
+                    ];
+                }
+
+                export default async function FleetPage() {
+                    const serverFetchedVehicles = await fetchLiveFleetData();
+
+                    return (
+                        <main className="p-6">
+                        <h1 className="text-2xl font-bold mb-6">Fleet Automation Dashboard</h1>
+                        
+                        {/* 1. Pre-hydrate the server state straight down into our provider */}
+                        <VehicleStoreProvider initialData={{ vehicles: serverFetchedVehicles }}>
+                            {/* 2. Render interactive sub-views securely */}
+                            <FleetDashboardView />
+                        </VehicleStoreProvider>
+                        </main>
+                    );
+                }
+
+            4: Access State Instantly on the Client
+
+                "use client";
+
+                import { useVehicleStore } from '@/store/VehicleStoreProvider';
+
+                export default function FleetDashboardView() {
+                    // Read state using standard atomic selector optimization mechanics
+                    const vehicles = useVehicleStore((state) => state.vehicles);
+                    const activeFilter = useVehicleStore((state) => state.activeFilter);
+                    const setFilter = useVehicleStore((state) => state.setFilter);
+
+                    return (
+                        <div className="bg-white p-4 border rounded-xl shadow-sm">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-lg font-semibold">Active Trucks ({vehicles.length})</h2>
+                            <span className="text-xs px-2 py-1 bg-slate-100 rounded text-slate-600 uppercase font-bold">
+                            Filter: {activeFilter}
+                            </span>
+                        </div>
+
+                        <ul className="divide-y">
+                            {vehicles.map((vehicle) => (
+                            <li key={vehicle.id} className="py-3 flex justify-between text-sm">
+                                <span className="font-medium text-slate-800">{vehicle.model}</span>
+                                <span className="text-xs text-slate-500 font-mono uppercase bg-slate-50 px-2 py-0.5 rounded">
+                                {vehicle.type}
+                                </span>
+                            </li>
+                            ))}
+                        </ul>
+                        </div>
+                    );
+                }
