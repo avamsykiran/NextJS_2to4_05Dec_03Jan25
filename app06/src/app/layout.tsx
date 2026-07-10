@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.min.css"
 import "./globals.css";
 import { Container } from "react-bootstrap";
-import Header from "@/components/Header"; // '@' refers to /src/
+import Header from "@/components/Header"; 
 
 export const metadata: Metadata = {
   title: "AdB 3.2",
