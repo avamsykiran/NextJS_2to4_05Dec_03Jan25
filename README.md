@@ -431,7 +431,7 @@ NextJS
         a .ts file as server only, ensuring that that .ts
         never ever leaves the server.
 
-    Incremental Static Regeneration (ISR)
+    Incremental Static Regeneration (ISR) And Route Caching and Fetech Caching
     -----------------------------------------------------------------------------------
     
         Incremental Static Regeneration (ISR) is a powerful Next.js feature that bridges the gap between Static Rendering (fast but static) and Dynamic Rendering (slower but real-time).
@@ -972,4 +972,216 @@ NextJS
                         </ul>
                         </div>
                     );
+                }
+    
+    Error handling & loading states
+    -----------------------------------------------------------------------------------
+    
+        NextJS Server Side Loading and Error Handling
+
+            nstead of manually creating isLoading or error state variables in every component, Next.js intercepts network requests and rendering delays to automatically swap these files into the layout tree when needed.
+
+            loading.tsx
+                is an automated file used to create instant loading states or skeleton screens for a specific route segment.
+
+            error.tsx
+                is an automated React Error Boundary file designed to catch unexpected runtime crashes or API failures gracefully without taking down our entire application.
+                
+                Crucial Rule: Must be a Client Component
+
+        Client Side Loading and Error Handling
+
+            Generally client side api calls are to be avoided. But if thats inevitable,
+            the 'store' of the relevent library like zustand or RTK shall hold
+            variables for error and loadingStates and are to be updated by the relevant
+            setters (zustand) or reducers (RTK). The components can subscribe to
+            the these error and loadingState variables and update the html accordingly.
+
+            // src/store/useBookingStore.ts
+            import { create } from 'zustand';
+
+            interface Booking { id: string; customer: string; status: string; }
+
+            interface BookingState {
+                bookings: Booking[];
+                isLoading: boolean;
+                error: string | null; // Stores human-readable error messages
+                fetchBookings: () => Promise<void>;
+                clearError: () => void;
+            }
+
+            export const useBookingStore = create<BookingState>((set) => ({
+                bookings: [],
+                isLoading: false,
+                error: null,
+
+                clearError: () => set({ error: null }),
+
+                fetchBookings: async () => {
+                    // 1. Reset state maps to initiate loading layout
+                    set({ isLoading: true, error: null });
+                    
+                    try {
+                        const response = await fetch('/api/bookings');
+                        
+                        // Handle network response boundaries (e.g., 404, 500)
+                        if (!response.ok) {
+                            throw new Error(`System Error: Failed to retrieve bookings (${response.status})`);
+                        }
+                        
+                        const data = await response.json();
+                        // 2. Clear loader and commit successful payload
+                        set({ bookings: data, isLoading: false });
+                    } catch (err: any) {
+                        // 3. Catch errors cleanly and stop loading states
+                        set({ error: err.message || 'An unexpected transport fault occurred.', isLoading: false });
+                    }
+                }
+            }));  
+
+    Parallel & sequential data fetching
+    -----------------------------------------------------------------------------------
+        Parallel
+            export default async function DashboardPage() {
+                // 1. Start both database queries concurrently
+                const fleetPromise = getFleetList();
+                const alertsPromise = getSystemAlerts();
+
+                // 2. Wait for both promises to resolve together
+                const [trucks, alerts] = await Promise.all([fleetPromise, alertsPromise]);
+
+                return (
+                    <main className="p-4">
+                    <h2>Active Fleet ({trucks.length})</h2>
+                    <h2>Critical Incident Alerts ({alerts.length})</h2>
+                    </main>
+                );
+            }
+        
+        Sequential
+
+            export default async function BillingPage({id}) {
+                // Request 1: Must resolve first to establish identity
+                const account = await getAccountById(id); 
+                
+                if (!account) return <p>UnKnown Account</p>;
+
+                // Request 2: Blocks and waits because it requires account.accountId to run
+                const invoices = await getInvoices(account.accountId);
+
+                return (
+                    <main className="p-4">
+                        <h3>Invoices for Tenant: {session.tenantId}</h3>
+                        {/* Render list mapping here */}
+                    </main>
+                );
+            }
+
+    Database Connectivity
+    -----------------------------------------------------------------------------------
+    
+        Because Next.js is a hybrid framework, database connections must only happen on the server side (inside Server Components, Server Actions, or API Route Handlers). Attempting to import database drivers inside a Client Component ("use client") will cause compilation failures and compromise our database credentials.
+
+        Relational Databases (Prisma ORM)
+
+            instalaltion
+                npm install prisma --save-dev
+                npm install @prisma/client
+
+            initializing datasource-provider
+                npx prisma init --datasource-provider mysql
+
+                (or)
+                
+                npx prisma init --datasource-provider sqlite
+            
+                This command creates a new folder named prisma in our project root containing a schema.prisma file, and appends a local database URL string to our .env file.
+
+            define data model
+
+                // prisma/schema.prisma
+
+                datasource db {
+                    provider = "sqlite"
+                    url      = env("DATABASE_URL")
+                }
+
+                generator client {
+                    provider = "prisma-client-client"
+                }
+
+                // Our Contact Model Definition
+                model Contact {
+                    id        String   @id @default(uuid()) // Automatically generates a unique secure UUID string
+                    name      String
+                    email     String   @unique
+                    phone     String?  // Optional field (nullable)
+                    createdAt DateTime @default(now())
+                    updatedAt DateTime @updatedAt
+                }
+
+            migrate database 
+                npx prisma migrate dev --name init_contact_model
+
+            configure the database singleton client
+                // src/lib/db.ts
+                import { PrismaClient } from '@prisma/client';
+
+                const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+
+                export const db = globalForPrisma.prisma || new PrismaClient();
+
+                if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db;
+
+            implement CRUD Server Actions            
+
+                // src/app/actions/contactActions.ts
+                'use server';
+
+                import { db } from '@/lib/db';
+                import { revalidatePath } from 'next/cache';
+
+                // 1. CREATE Action
+                export async function createContact(formData: FormData) {
+                    const name = formData.get('name') as string;
+                    const email = formData.get('email') as string;
+                    const phone = formData.get('phone') as string;
+
+                    if (!name || !email) throw new Error('Name and Email are mandatory fields.');
+
+                    await db.contact.create({
+                        data: { name, email, phone: phone || null },
+                    });
+
+                    // Purges cached layout data maps so changes reflect instantly in the browser
+                    revalidatePath('/contacts');
+                }
+
+                // 2. READ Action (Handled via normal function exported directly for components)
+                export async function getAllContacts() {
+                    return await db.contact.findMany({
+                        orderBy: { createdAt: 'desc' },
+                    });
+                }
+
+                // 3. UPDATE Action
+                export async function updateContactStatus(id: string, formData: FormData) {
+                    const updatedName = formData.get('name') as string;
+                    const updatedEmail = formData.get('email') as string;
+
+                    await db.contact.update({
+                        where: { id },
+                        data: { name: updatedName, email: updatedEmail },
+                    });
+
+                    revalidatePath('/contacts');
+                }
+
+                // 4. DELETE Action
+                export async function deleteContact(id: string) {
+                    await db.contact.delete({
+                        where: { id },
+                    });
+
+                    revalidatePath('/contacts');
                 }

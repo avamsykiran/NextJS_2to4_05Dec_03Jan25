@@ -1,14 +1,16 @@
 import { createStore } from 'zustand/vanilla';
-import { useStore } from 'zustand';
 import { Contact } from '../models/Contact';
 
-type FilterInputsType = { field: string, value: string } | null;
+export type ContactsFilterInputsType = { field: keyof Contact | "all", value: string };
+
+export interface ContactForUI extends Contact {
+    isVisible: boolean;
+}
 
 export interface ContactsState {
-    contacts: Contact[],
-    filterInputs: FilterInputsType,
+    contacts: ContactForUI[],
     setContacts: (contacts: Contact[]) => void,
-    setFilter: (inputs: FilterInputsType) => void,
+    filter: (inputs: ContactsFilterInputsType) => void,
     sort: (sortField: keyof Contact) => void,
 }
 
@@ -19,10 +21,24 @@ export interface ContactsProps {
 // 1. Define a creator function that builds a completely isolated instance
 export const createContactsStore = (initProps?: ContactsProps) => {
     return createStore<ContactsState>((set) => ({
-        contacts: initProps?.contacts ?? [],
-        filterInputs: null,
+        contacts: initProps?.contacts.map(cx => ({ ...cx, isVisible: true })) ?? [],
         setContacts: (contacts) => set({ contacts }),
-        setFilter: (inputs) => set({ filterInputs: inputs }),
+        filter: (inputs) => set((state) => {
+
+            let filteredContacts = [];
+            if (inputs.field === "all" || !inputs.value || inputs.value.trim().length === 0) {
+                filteredContacts = state.contacts.map(cx => ({ ...cx, isVisible: true }));
+            } else {
+                const { field, value } = inputs;
+                if (field === "id") {
+                    filteredContacts = state.contacts.map(cx => ({ ...cx, isVisible: (cx[field] === Number(value)) }));
+                } else {
+                    filteredContacts = state.contacts.map(cx => ({ ...cx, isVisible: (cx[field].includes(value)) }));
+                }
+            }
+
+            return { contacts: filteredContacts };
+        }),
         sort: (sortField) => set((state) => ({
             contacts: state.contacts.toSorted(
                 (a, b) => a[sortField] < b[sortField] ? -1 : 1

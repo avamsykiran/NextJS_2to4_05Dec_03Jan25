@@ -24,7 +24,9 @@ const ContactsList = () => {
             </thead>
             <tbody>
                 {
-                    contacts.map(c => (
+                    contacts
+                    .filter(cx => cx.isVisible)
+                    .map(c => (
                         <tr key={c.id}>
                             <td>{c.id}</td>
                             <td>{c.name}</td>
