@@ -1060,9 +1060,9 @@ NextJS
         
         Sequential
 
-            export default async function BillingPage({id}) {
+            export default async function BillingPage({userName}) {
                 // Request 1: Must resolve first to establish identity
-                const account = await getAccountById(id); 
+                const account = await getAccountByUserName(userName); 
                 
                 if (!account) return <p>UnKnown Account</p>;
 
@@ -1088,8 +1088,16 @@ NextJS
                 npm install prisma --save-dev
                 npm install @prisma/client
 
+            adapters installation
+                npm install pg @prisma/adapter-pg
+                npm install --save-dev @types/pg
+
+                or 
+
+                npm install @libsql/client @prisma/adapter-libsql
+
             initializing datasource-provider
-                npx prisma init --datasource-provider mysql
+                npx prisma init --datasource-provider pg
 
                 (or)
                 
@@ -1121,10 +1129,17 @@ NextJS
                 }
 
             migrate database 
-                npx prisma migrate dev --name init_contact_model
+                npx prisma migrate dev --name <migration-log-name>
+                (or)
+                npx prisma migrate prod --name <migration-log-name>
+                (or)
+                npx prisma migrate testing --name <migration-log-name>
+
+                npx prisma generate
 
             configure the database singleton client
                 // src/lib/db.ts
+                
                 import { PrismaClient } from '@prisma/client';
 
                 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
@@ -1185,3 +1200,57 @@ NextJS
 
                     revalidatePath('/contacts');
                 }
+
+    Handling API Routes 
+    -----------------------------------------------------------------------------------
+
+        Route Mapping 
+    z        hr-app
+                |- src
+                    |-app                   
+                        |-api
+                            |-route.ts          will be a rest api responding to /api
+                            |-contacts
+                                |-route.ts      will be a rest api responding to /api/contacts
+                                |-[cid]
+                                    |-route.ts  will be a rest api responding to /api/contacts/1
+
+        NextRequest 
+            simplifies the extraction of incoming network parameters. 
+
+            request.json()      returns a Promise object containing the request body
+
+            request.nextUrl     is a pre-parsed object containing the query context
+
+            request.cookies     has accessors to read, check, or loop through client 
+                                browser cookies.
+
+        NextResponse 
+            gives us fine-grained control over what we send back to the client, from content rendering types to redirection controls.
+
+            Standard ResponseBody as JSON and Status Codes
+
+                NextResponse.json(resultPayload, {
+                    status: 201, // Resource Created
+                    statusText: "Successfully Registered Log Entry",
+                });
+
+            Server Side Redirections
+
+                NextResponse.redirect(loginUrl);
+
+        Route Handling         
+            Instead of a single default export function, Route Handlers export individual, explicitly named asynchronous functions matching standard HTTP methods (GET, POST, PUT, PATCH, DELETE).
+
+            / src/app/api/contacts/route.ts
+            import { NextResponse } from 'next/server';
+
+            // Handle incoming HTTP GET requests
+            export async function GET() {
+                const data = await getAllContacts();
+                return NextResponse.json(data, { status: 200 });
+            }
+
+    Middleware
+    -----------------------------------------------------------------------------------
+
