@@ -1398,6 +1398,7 @@ NextJS
 
             Step 1: Install NextAuth
                 npm install next-auth@beta
+                npm install --save-dev @types/bcryptjs
 
                 Note: beta refers to the latest v5 version and its v4 is obsolate. And
                         v5 is makred beta since long.
@@ -1426,10 +1427,10 @@ NextJS
                     callbacks: {
                         // Inject custom properties (like user role) into the session object
                         async session({ session, token }) {
-                        if (session.user && token.sub) {
-                            session.user.id = token.sub;
-                        }
-                        return session;
+                            if (session.user && token.sub) {
+                                session.user.id = token.sub;
+                            }
+                            return session;
                         },
                     },
                 });
@@ -1462,16 +1463,16 @@ NextJS
 
                         return (
                             <main className="p-8">
-                            <h1>Welcome back, {session.user?.name}!</h1>
-                            <p>Logged in as: {session.user?.email}</p>
-                            
-                            {/* Sign-out Server Action */}
-                            <form action={async () => {
-                                "use server";
-                                await signOut({ redirectTo: "/" });
-                            }}>
-                                <button type="submit">Sign Out</button>
-                            </form>
+                                <h1>Welcome back, {session.user?.name}!</h1>
+                                <p>Logged in as: {session.user?.email}</p>
+                                
+                                {/* Sign-out Server Action */}
+                                <form action={async () => {
+                                    "use server";
+                                    await signOut({ redirectTo: "/" });
+                                }}>
+                                    <button type="submit">Sign Out</button>
+                                </form>
                             </main>
                         );
                     }
@@ -1504,3 +1505,23 @@ NextJS
                         // Only execute auth checks on these specific routes
                         matcher: ["/dashboard/:path*", "/settings/:path*"],
                     };
+
+    Working with Tailwind
+    ---------------------------------------------------------------------------------------------
+        refer "/docs/Tailwind.pdf"
+        
+    Security
+    ---------------------------------------------------------------------------------------------
+        refer "/docs/Security and Risk Management.pdf"
+
+    Unit & integration testing overview
+    ---------------------------------------------------------------------------------------------
+        refer "/docs/NextJs Testing.pdf"
+
+    Debugging Next.js applications        
+    ---------------------------------------------------------------------------------------------
+        refer "/docs/NextJs Debugging.pdf"
+    
+    Deployment & Production
+    ---------------------------------------------------------------------------------------------
+        refer "/docs/Deployment And Production.pdf"

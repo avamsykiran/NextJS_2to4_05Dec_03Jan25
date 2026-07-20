@@ -1,0 +1,28 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite" //"mysql" | "pg" ..etc.,
+}
+
+model Contact {
+  id        String   @id @default(uuid()) // Automatically generates a unique secure UUID string
+  name      String
+  mailId    String   @unique
+  mobile    String   @unique 
+}
+
+//SQLLite doesnt support
+//enum Role {
+//  ADMIN, USER
+//}
+
+model AdbUser {
+  id        String   @id @default(uuid()) // Automatically generates a unique secure UUID string  
+  username  String   @unique
+  password  String   
+  role      String   @default("USER")
+}
