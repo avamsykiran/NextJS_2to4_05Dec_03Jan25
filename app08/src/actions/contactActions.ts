@@ -1,38 +1,31 @@
 "use server";
 
-import { db } from "@/lib/db";
 import { Contact } from "@/lib/models/Contact";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import * as contacstDAL from "@/lib/data-access-layer/contactsDAL"
 
-export async function getAllContacts() {
-    return await db.contact.findMany();
+export async function getAllContactsServerAction() {
+    return await contacstDAL.getAllContacts();
 }
 
-export async function getContactById(id:string) {
-    return await db.contact.findUnique({where:{id}});
+export async function getContactByIdServerAction(id:string) {
+    return await contacstDAL.getContactById(id);
 }
 
 export async function addContactServerAction(c: Contact) {
-    await db.contact.create({
-        data: { ...c, id: undefined },
-    });
+    await contacstDAL.addContact(c);
     revalidatePath('/contacts');
     redirect("/contacts");
 }
 
 export async function updateContactServerAction(c: Contact) {
-    await db.contact.update({
-        where: { id: c.id },
-        data: { ...c, id: undefined },
-    });
+    await contacstDAL.updateContact(c);
     revalidatePath('/contacts');
     redirect("/contacts");
 }
 
 export async function deleteContactServerAction(id: string) {
-    await db.contact.delete({
-        where: { id },
-    });
+    await contacstDAL.deleteContact(id);
     revalidatePath('/contacts');
 }

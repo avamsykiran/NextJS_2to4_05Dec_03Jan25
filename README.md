@@ -1201,6 +1201,58 @@ NextJS
                     revalidatePath('/contacts');
                 }
 
+        Database Seeding
+            
+            To automatically add records (initial or seed data) when creating or resetting your database with Prisma, you use Prisma Seeding.
+
+            npm install -D tsx
+
+            prisma/seed.ts:
+                import { PrismaClient } from '@prisma/client';
+
+                const prisma = new PrismaClient();
+
+                async function main() {
+                    console.log('Seeding initial records...');
+
+                    // Example: Seed default roles or an admin user safely using upsert
+                    const adminUser = await prisma.user.upsert({
+                            where: { email: 'admin@example.com' },
+                            update: {}, // Do nothing if the user already exists
+                            create: {
+                            email: 'admin@example.com',
+                            name: 'System Admin',
+                            role: 'ADMIN',
+                        },
+                    });
+
+                    console.log(`Seeded user: ${adminUser.email}`);
+                }
+
+                main()
+                    .catch((e) => {
+                        console.error(e);
+                        process.exit(1);
+                    })
+                    .finally(async () => {
+                        // Always disconnect Prisma Client when finished
+                        await prisma.$disconnect();
+                    });
+
+            prisma.config.ts
+
+                import { defineConfig } from "prisma/config";
+
+                export default defineConfig({
+                    schema: "prisma/schema.prisma",
+                    migrations: {
+                        path: "prisma/migrations",
+                        seed: "tsx prisma/seed.ts", // Configures the command to run
+                    },
+                });
+
+            npx prisma db seed
+            
     Handling API Routes 
     -----------------------------------------------------------------------------------
 

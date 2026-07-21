@@ -1,10 +1,10 @@
 import ContactForm from "../../ContactForm";
-import { getContactById } from "@/actions/contactActions";
+import { getContactByIdServerAction } from "@/actions/contactActions";
 
 const EditContactPage = async ({ params }: { params: Promise<{ id: string }> }) => {
 
     const { id } = await params;
-    var contact = await getContactById(id);
+    var contact = await getContactByIdServerAction(id);
 
     if(contact===null){
         throw new Error("No such record Found to edit");

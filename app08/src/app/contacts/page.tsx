@@ -2,11 +2,11 @@ import ContactsList from "./ContactsList";
 import { Contact } from "@/lib/models/Contact";
 import { ContactsStoreProvider } from "@/lib/state/ContactsStoreProvider";
 import ContactsFilterForm from "./ContactsFilterForm";
-import { getAllContacts } from "@/actions/contactActions";
+import { getAllContactsServerAction } from "@/actions/contactActions";
 
 const ContactsListPage = async () => {
 
-    var contacts: Contact[] = await getAllContacts();
+    var contacts: Contact[] = await getAllContactsServerAction();
 
     return (
         <ContactsStoreProvider initialData={{ contacts }}>
